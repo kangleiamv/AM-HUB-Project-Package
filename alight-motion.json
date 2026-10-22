@@ -1,0 +1,354 @@
+{
+  "name": "alight-motion",
+  "displayName": "Alight Motion project shares",
+  "baseUrl": "https://alightcreative.com",
+  "description": "Share links for Alight Motion project packages (alightcreative.com). The page is server-rendered by the amshare Cloud Function in us-central1; it fires no XHR of its own, so the page itself is the only data request. Files live in Firebase Cloud Storage bucket alight-creative.appspot.com under share/u/{uid}/p/{pid}/ : thumb-small.jpg, thumb-med.jpg and thumb-tiny.jpg are public, while meta.json and the project package need a Firebase Auth ID token (Bearer) and answer 403 without one. Storage paths go in the path param with real slashes; the tool percent-encodes them. Also present but not readable anonymously: the Storage list endpoint, the Firestore document share/u/{uid}/p/{pid}, and the second bucket alight-motion. A share with a wrong uid/pid still answers 200 with an error template, so check that projects is non-empty.",
+  "operations": [
+    {
+      "name": "getProjectShare",
+      "description": "Alight Motion shared project package page: title, project list, package size, thumbnail URL, import URL",
+      "request": {
+        "method": "GET",
+        "url": "https://alightcreative.com/am/share/u/%7Buid%7D/p/%7Bpid%7D",
+        "headers": {
+          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=0, i",
+          "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"Google Chrome\";v=\"156\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Linux\"",
+          "sec-fetch-dest": "document",
+          "sec-fetch-mode": "navigate",
+          "sec-fetch-site": "none",
+          "sec-fetch-user": "?1",
+          "upgrade-insecure-requests": "1",
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+        }
+      },
+      "slots": [
+        {
+          "param": "uid",
+          "at": [
+            "path:3"
+          ]
+        },
+        {
+          "param": "pid",
+          "at": [
+            "path:5"
+          ]
+        }
+      ],
+      "volatile": [],
+      "trigger": {
+        "url": "https://alightcreative.com/am/share/u/{uid}/p/{pid}"
+      },
+      "match": {
+        "method": "GET",
+        "host": "alightcreative.com",
+        "path": "/am/share/u/*/p/*"
+      },
+      "response": {
+        "format": "html",
+        "contentType": "text/html; charset=utf-8",
+        "html": {
+          "items": "html",
+          "fields": {
+            "title": "title",
+            "ogTitle": "meta[property=\"og:title\"]@content",
+            "ogDescription": "meta[property=\"og:description\"]@content",
+            "ogImage": "meta[property=\"og:image\"]@content",
+            "ogUrl": "meta[property=\"og:url\"]@content",
+            "projects": "all:#project-list li",
+            "importUrl": "a.button@href"
+          }
+        }
+      },
+      "params": [
+        {
+          "name": "uid",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "pid",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false
+    },
+    {
+      "name": "getStorageMetadata",
+      "description": "Firebase Cloud Storage object metadata for the Alight Motion project share bucket (path is the raw storage path, slashes included)",
+      "request": {
+        "method": "GET",
+        "url": "https://firebasestorage.googleapis.com/v0/b/alight-creative.appspot.com/o/%7Bpath%7D",
+        "headers": {
+          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=0, i",
+          "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"Google Chrome\";v=\"156\"",
+          "sec-ch-ua-arch": "\"x86\"",
+          "sec-ch-ua-bitness": "\"64\"",
+          "sec-ch-ua-full-version-list": "\"Not:A-Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"156.0.8078.47\", \"Google Chrome\";v=\"156.0.8078.47\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-model": "\"\"",
+          "sec-ch-ua-platform": "\"Linux\"",
+          "sec-ch-ua-platform-version": "\"\"",
+          "sec-ch-ua-wow64": "?0",
+          "sec-fetch-dest": "document",
+          "sec-fetch-mode": "navigate",
+          "sec-fetch-site": "none",
+          "sec-fetch-user": "?1",
+          "upgrade-insecure-requests": "1",
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+          "x-browser-channel": "stable",
+          "x-browser-copyright": "Copyright 2026 Google LLC. All Rights Reserved.",
+          "x-browser-validation": "UxpZQTz+dXW7i3uE6YqZgL9sIe0=",
+          "x-browser-year": "2026"
+        }
+      },
+      "slots": [
+        {
+          "param": "path",
+          "at": [
+            "path:4"
+          ]
+        }
+      ],
+      "volatile": [],
+      "trigger": {
+        "url": "https://firebasestorage.googleapis.com/v0/b/alight-creative.appspot.com/o/{path}"
+      },
+      "match": {
+        "method": "GET",
+        "host": "firebasestorage.googleapis.com",
+        "path": "/v0/b/alight-creative.appspot.com/o/*"
+      },
+      "response": {
+        "format": "json",
+        "contentType": "application/json; charset=UTF-8",
+        "pick": [
+          "name",
+          "bucket",
+          "contentType",
+          "size",
+          "timeCreated",
+          "updated",
+          "downloadTokens",
+          "md5Hash",
+          "etag"
+        ]
+      },
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false
+    },
+    {
+      "name": "getThumbnail",
+      "description": "Raw bytes of a shared project thumbnail (JPEG) from Firebase Cloud Storage; returned as raw text",
+      "request": {
+        "method": "GET",
+        "url": "https://firebasestorage.googleapis.com/v0/b/alight-creative.appspot.com/o/%7Bpath%7D?alt=media",
+        "headers": {
+          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=0, i",
+          "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"Google Chrome\";v=\"156\"",
+          "sec-ch-ua-arch": "\"x86\"",
+          "sec-ch-ua-bitness": "\"64\"",
+          "sec-ch-ua-full-version-list": "\"Not:A-Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"156.0.8078.47\", \"Google Chrome\";v=\"156.0.8078.47\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-model": "\"\"",
+          "sec-ch-ua-platform": "\"Linux\"",
+          "sec-ch-ua-platform-version": "\"\"",
+          "sec-ch-ua-wow64": "?0",
+          "sec-fetch-dest": "document",
+          "sec-fetch-mode": "navigate",
+          "sec-fetch-site": "none",
+          "sec-fetch-user": "?1",
+          "upgrade-insecure-requests": "1",
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+          "x-browser-channel": "stable",
+          "x-browser-copyright": "Copyright 2026 Google LLC. All Rights Reserved.",
+          "x-browser-validation": "UxpZQTz+dXW7i3uE6YqZgL9sIe0=",
+          "x-browser-year": "2026"
+        }
+      },
+      "slots": [
+        {
+          "param": "path",
+          "at": [
+            "path:4"
+          ]
+        }
+      ],
+      "volatile": [],
+      "trigger": {
+        "url": "https://firebasestorage.googleapis.com/v0/b/alight-creative.appspot.com/o/{path}?alt=media"
+      },
+      "match": {
+        "method": "GET",
+        "host": "firebasestorage.googleapis.com",
+        "path": "/v0/b/alight-creative.appspot.com/o/*"
+      },
+      "response": {
+        "format": "html",
+        "contentType": "image/jpeg"
+      },
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false
+    },
+    {
+      "name": "getFirebaseConfig",
+      "description": "Firebase project configuration served by the site: project id, storage bucket, database URL, auth domain and web API key",
+      "request": {
+        "method": "GET",
+        "url": "https://alightcreative.com/__/firebase/init.js",
+        "headers": {
+          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=0, i",
+          "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"Google Chrome\";v=\"156\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Linux\"",
+          "sec-fetch-dest": "document",
+          "sec-fetch-mode": "navigate",
+          "sec-fetch-site": "none",
+          "sec-fetch-user": "?1",
+          "upgrade-insecure-requests": "1",
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+        }
+      },
+      "slots": [],
+      "volatile": [],
+      "trigger": {
+        "url": "https://alightcreative.com/__/firebase/init.js"
+      },
+      "match": {
+        "method": "GET",
+        "host": "alightcreative.com",
+        "path": "/__/firebase/init.js"
+      },
+      "response": {
+        "format": "embedded",
+        "contentType": "text/javascript; charset=utf-8",
+        "pick": [
+          "apiKey",
+          "projectId",
+          "storageBucket",
+          "databaseURL",
+          "authDomain",
+          "messagingSenderId"
+        ],
+        "embedded": {
+          "regex": "initializeApp\\((\\{)"
+        }
+      },
+      "params": [],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false
+    },
+    {
+      "name": "getProjectShareFunction",
+      "description": "The Alight Motion 'amshare' Cloud Function called directly (same payload as the hosted share page, without the Firebase Hosting rewrite)",
+      "request": {
+        "method": "GET",
+        "url": "https://us-central1-alight-creative.cloudfunctions.net/amshare/u/%7Buid%7D/p/%7Bpid%7D",
+        "headers": {
+          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=0, i",
+          "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"Google Chrome\";v=\"156\"",
+          "sec-ch-ua-arch": "\"x86\"",
+          "sec-ch-ua-bitness": "\"64\"",
+          "sec-ch-ua-full-version-list": "\"Not:A-Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"156.0.8078.47\", \"Google Chrome\";v=\"156.0.8078.47\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-model": "\"\"",
+          "sec-ch-ua-platform": "\"Linux\"",
+          "sec-ch-ua-platform-version": "\"\"",
+          "sec-ch-ua-wow64": "?0",
+          "sec-fetch-dest": "document",
+          "sec-fetch-mode": "navigate",
+          "sec-fetch-site": "none",
+          "sec-fetch-user": "?1",
+          "upgrade-insecure-requests": "1",
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+        }
+      },
+      "slots": [
+        {
+          "param": "uid",
+          "at": [
+            "path:2"
+          ]
+        },
+        {
+          "param": "pid",
+          "at": [
+            "path:4"
+          ]
+        }
+      ],
+      "volatile": [],
+      "trigger": {
+        "url": "https://us-central1-alight-creative.cloudfunctions.net/amshare/u/{uid}/p/{pid}"
+      },
+      "match": {
+        "method": "GET",
+        "host": "us-central1-alight-creative.cloudfunctions.net",
+        "path": "/amshare/u/*/p/*"
+      },
+      "response": {
+        "format": "html",
+        "contentType": "text/html; charset=utf-8",
+        "html": {
+          "items": "html",
+          "fields": {
+            "title": "title",
+            "ogTitle": "meta[property=\"og:title\"]@content",
+            "ogDescription": "meta[property=\"og:description\"]@content",
+            "ogImage": "meta[property=\"og:image\"]@content",
+            "ogUrl": "meta[property=\"og:url\"]@content",
+            "projects": "all:#project-list li",
+            "importUrl": "a.button@href"
+          }
+        }
+      },
+      "params": [
+        {
+          "name": "uid",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "pid",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false
+    }
+  ]
+}

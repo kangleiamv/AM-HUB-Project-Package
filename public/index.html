@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#080B14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Alight Motion Project Hub & Downloader</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" type="image/png" href="https://www.alightmotion.com/amicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="background-glow glow-1"></div>
+  <div class="background-glow glow-2"></div>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="brand-badge">AM</span>
+        <div class="brand-text">
+          <h1>Alight Motion <span>Hub</span></h1>
+          <span class="brand-sub">Cloud Package & Asset Downloader</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="/AlightMotionHub.apk" download="AlightMotionHub.apk" class="btn-apk-download" title="Download 100% Native Android App">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px; vertical-align: -2px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Get APK
+        </a>
+        <span class="live-indicator"><span class="live-dot"></span> Online</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main container">
+    <!-- Search / URL Input Card -->
+    <section class="input-section">
+      <div class="input-card">
+        <form id="inspect-form" class="url-form">
+          <div class="search-box-compact">
+            <span class="url-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+            </span>
+            <input 
+              type="text" 
+              id="share-input" 
+              placeholder="Paste Alight Motion share link..." 
+              required 
+              autocomplete="off"
+            />
+            <button type="button" id="btn-paste-clipboard" class="btn-paste-compact" title="Paste from clipboard">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+              <span>Paste</span>
+            </button>
+            <button type="submit" id="submit-btn" class="btn-inspect-compact">
+              <span class="btn-text">Inspect</span>
+              <span class="btn-spinner" style="display:none;"></span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Dynamic Recent Presets Strip -->
+        <div id="recent-presets-strip" class="preset-strip" style="display:none;">
+          <span class="preset-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 2px;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Recent:
+          </span>
+          <div id="recent-chips-container" class="recent-chips-wrap">
+            <!-- Dynamically populated from localStorage -->
+          </div>
+          <button type="button" id="btn-clear-recent" class="btn-clear-recent" title="Clear recent presets history">✕</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Error Toast / Banner -->
+    <div id="error-banner" class="alert-toast" style="display:none;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span id="error-message"></span>
+    </div>
+
+    <!-- Results Area -->
+    <section id="results-area" class="results-area" style="display:none;">
+      
+      <!-- Project Top Summary Bar -->
+      <div class="project-hero-card">
+        <div class="hero-header">
+          <div class="hero-title-area">
+            <h2 id="res-title" class="hero-title">Gilheris : cameras</h2>
+            <div id="res-policy-badge" class="hero-badge">Loading...</div>
+          </div>
+          <p id="res-desc" class="hero-desc"></p>
+        </div>
+
+        <!-- Quick 4-column Stats Row -->
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="stat-label">Total Size</span>
+            <strong id="res-size" class="stat-val">-</strong>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Downloads</span>
+            <strong id="res-downloads" class="stat-val">-</strong>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Platform</span>
+            <strong id="res-platform" class="stat-val">-</strong>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Version</span>
+            <strong id="res-version" class="stat-val">-</strong>
+          </div>
+        </div>
+
+        <!-- Primary Action Touch Grid -->
+        <div class="hero-actions-grid">
+          <a id="btn-download-package" href="#" class="action-btn action-btn-primary" download>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Download .ZIP</span>
+          </a>
+          <button id="btn-copy-zip-link" class="action-btn action-btn-zip-copy" title="Copy direct download link for project ZIP">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            <span>Copy ZIP Link</span>
+          </button>
+          <a id="btn-import-direct" href="#" target="_blank" class="action-btn action-btn-accent">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>Open in App</span>
+          </a>
+          <button id="btn-copy-link" class="action-btn action-btn-ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>Share Link</span>
+          </button>
+          <button id="btn-download-json" class="action-btn action-btn-ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>Export JSON</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Segmented Mobile Tab Bar -->
+      <nav class="app-tab-nav">
+        <button class="nav-tab active" data-tab="preview">
+          <span class="tab-icon">🎬</span>
+          <span class="tab-name">Preview</span>
+        </button>
+        <button class="nav-tab" data-tab="media">
+          <span class="tab-icon">📁</span>
+          <span class="tab-name">Media (<span id="tab-media-count">0</span>)</span>
+        </button>
+        <button class="nav-tab" data-tab="xml">
+          <span class="tab-icon">📝</span>
+          <span class="tab-name">XML Preset</span>
+        </button>
+        <button class="nav-tab" data-tab="details">
+          <span class="tab-icon">📦</span>
+          <span class="tab-name">Details</span>
+        </button>
+        <button class="nav-tab" data-tab="api">
+          <span class="tab-icon">⚡</span>
+          <span class="tab-name">API</span>
+        </button>
+      </nav>
+
+      <!-- TAB 1: PREVIEW & VIDEO -->
+      <div id="tab-content-preview" class="tab-content active">
+        <!-- Live Video Player Card -->
+        <div id="video-card" class="content-card" style="display:none;">
+          <div class="card-title-row">
+            <div>
+              <h3>🎬 Live Video Preview</h3>
+              <p class="card-sub">Instant zero-download streaming playback</p>
+            </div>
+            <span id="video-specs-badge" class="tech-badge">1088x1088 @ 60fps</span>
+          </div>
+
+          <div class="custom-video-wrapper" id="custom-video-wrapper">
+            <video id="player-video" playsinline loop preload="metadata">
+              Your browser does not support the video tag.
+            </video>
+
+            <!-- Center Big Play Button & Buffer Spinner -->
+            <div class="video-center-overlay" id="video-center-overlay">
+              <button type="button" class="video-big-play-btn" id="video-big-play-btn" aria-label="Play/Pause">
+                <svg class="icon-play" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <svg class="icon-pause" style="display:none;" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="6" y="4" width="4" height="16"></rect>
+                  <rect x="14" y="4" width="4" height="16"></rect>
+                </svg>
+              </button>
+              <div class="video-spinner" id="video-spinner" style="display:none;"></div>
+            </div>
+
+            <!-- Custom Bottom Controls Bar -->
+            <div class="video-controls-bar" id="video-controls-bar">
+              <!-- Scrubber Track -->
+              <div class="video-timeline" id="video-timeline">
+                <div class="video-timeline-buffer" id="video-timeline-buffer"></div>
+                <div class="video-timeline-progress" id="video-timeline-progress"></div>
+                <div class="video-timeline-thumb" id="video-timeline-thumb"></div>
+              </div>
+
+              <!-- Controls Row -->
+              <div class="video-controls-row">
+                <div class="video-controls-left">
+                  <button type="button" class="v-btn" id="v-btn-play" title="Play/Pause">
+                    <svg class="icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <svg class="icon-pause" style="display:none;" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <rect x="6" y="4" width="4" height="16"></rect>
+                      <rect x="14" y="4" width="4" height="16"></rect>
+                    </svg>
+                  </button>
+                  <button type="button" class="v-btn" id="v-btn-rewind" title="Rewind 5s">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="11 19 2 12 11 5 11 19"></polygon>
+                      <polygon points="22 19 13 12 22 5 22 19"></polygon>
+                    </svg>
+                  </button>
+                  <button type="button" class="v-btn" id="v-btn-forward" title="Forward 5s">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="13 19 22 12 13 5 13 19"></polygon>
+                      <polygon points="2 19 11 12 2 5 2 19"></polygon>
+                    </svg>
+                  </button>
+                  <div class="video-time-display">
+                    <span id="v-time-current">0:00</span> / <span id="v-time-duration">0:00</span>
+                  </div>
+                </div>
+
+                <div class="video-controls-right">
+                  <div class="v-volume-group">
+                    <button type="button" class="v-btn" id="v-btn-volume" title="Mute/Unmute">
+                      <svg class="icon-vol-high" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                      </svg>
+                      <svg class="icon-vol-mute" style="display:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <line x1="23" y1="9" x2="17" y2="15"></line>
+                        <line x1="17" y1="9" x2="23" y2="15"></line>
+                      </svg>
+                    </button>
+                    <input type="range" class="v-volume-slider" id="v-volume-slider" min="0" max="1" step="0.05" value="1">
+                  </div>
+                  <button type="button" class="v-btn v-btn-speed" id="v-btn-speed" title="Speed">1x</button>
+                  <button type="button" class="v-btn v-btn-loop active" id="v-btn-loop" title="Toggle Loop">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="17 1 21 5 17 9"></polyline>
+                      <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                      <polyline points="7 23 3 19 7 15"></polyline>
+                      <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                    </svg>
+                  </button>
+                  <button type="button" class="v-btn" id="v-btn-fullscreen" title="Fullscreen">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="video-toolbar" style="margin-top: 12px; display: flex; gap: 8px;">
+            <a id="btn-download-video" href="#" class="btn btn-primary" download style="flex: 1;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download Video (.MP4)</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Audio Track Player Card (for projects with .wav/.m4a/.mp3) -->
+        <div id="audio-card" class="content-card" style="display:none;">
+          <div class="card-title-row">
+            <div>
+              <h3>🎵 Audio Track</h3>
+              <p id="audio-title-text" class="card-sub">Project Soundtrack / Audio Asset</p>
+            </div>
+            <span id="audio-specs-badge" class="tech-badge">AUDIO</span>
+          </div>
+          <div class="audio-player-box" style="margin: 12px 0 8px 0;">
+            <audio id="player-audio" controls preload="metadata" style="width: 100%; border-radius: 8px; outline: none;"></audio>
+          </div>
+          <div class="audio-toolbar" style="margin-top: 8px;">
+            <a id="btn-download-audio" href="#" class="btn btn-secondary" download>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download Audio (.WAV)</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Thumbnails Gallery Card -->
+        <div class="content-card">
+          <div class="card-title-row">
+            <h3>🖼️ Cover Thumbnails</h3>
+            <div class="segmented-control" id="thumb-tiers">
+              <button class="seg-btn active" data-tier="large">Large</button>
+              <button class="seg-btn" data-tier="medium">Med</button>
+              <button class="seg-btn" data-tier="small">Small</button>
+              <button class="seg-btn" data-tier="tiny">Tiny</button>
+            </div>
+          </div>
+          <div class="image-preview-box">
+            <img id="preview-img" src="" alt="Project Thumbnail" />
+          </div>
+          <div class="image-toolbar">
+            <a id="btn-download-thumb" href="#" target="_blank" download class="btn btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download Image</span>
+            </a>
+            <span id="thumb-tier-label" class="tier-label">Large Resolution</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: MEDIA ASSETS -->
+      <div id="tab-content-media" class="tab-content">
+        <div class="content-card">
+          <div class="card-title-row">
+            <div>
+              <h3>Embedded Media Files</h3>
+              <p class="card-sub">Extract or download each asset bundled inside the project package.</p>
+            </div>
+            <div class="xml-action-btns">
+              <button id="btn-copy-media-zip-link" class="btn btn-small btn-secondary" title="Copy direct download link for project ZIP">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span>Copy ZIP Link</span>
+              </button>
+              <a id="btn-download-all-media" href="#" class="btn btn-small btn-primary" download>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Download All (.ZIP)</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Filter Bar for Media Types (Video, Images, Audio/.wav) -->
+          <div class="media-filter-bar" id="media-filter-bar">
+            <button class="filter-pill active" data-filter="all">All (<span id="count-all">0</span>)</button>
+            <button class="filter-pill" data-filter="video">🎬 Videos (<span id="count-video">0</span>)</button>
+            <button class="filter-pill" data-filter="image">🖼️ Images (<span id="count-image">0</span>)</button>
+            <button class="filter-pill" data-filter="audio">🎵 Audio (<span id="count-audio">0</span>)</button>
+          </div>
+
+          <!-- Mobile Cards Container -->
+          <div id="media-cards-container" class="media-cards-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: XML PRESET -->
+      <div id="tab-content-xml" class="tab-content">
+        <div class="content-card">
+          <div class="card-title-row">
+            <div>
+              <h3>XML Project Preset</h3>
+              <p class="card-sub">Exported Alight Motion XML code. Copy or import into other editing tools.</p>
+            </div>
+            <div class="xml-action-btns">
+              <button id="btn-copy-xml" class="btn btn-small btn-primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy XML</span>
+              </button>
+              <a id="btn-download-xml" href="#" class="btn btn-small btn-secondary" download>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Download .XML</span>
+              </a>
+            </div>
+          </div>
+          <div class="code-box-wrapper">
+            <div class="code-header">
+              <span id="xml-filename" class="code-fn">preset.xml</span>
+              <span id="xml-size-badge" class="code-size">0 KB</span>
+            </div>
+            <pre><code id="xml-code-display">Loading XML preset...</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: DETAILS -->
+      <div id="tab-content-details" class="tab-content">
+        <div class="content-card">
+          <div class="card-title-row">
+            <h3>Scenes in Package</h3>
+            <span id="scenes-count-pill" class="pill-badge">0</span>
+          </div>
+          <div id="scenes-container" class="scenes-stack">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <div class="content-card">
+          <div class="card-title-row">
+            <h3>Required Effects & Shaders</h3>
+            <span id="effects-count-pill" class="pill-badge">0</span>
+          </div>
+          <p class="card-sub">Custom shaders and motion plugins required to render this project accurately.</p>
+          <div id="effects-pills" class="effects-wrap">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: API -->
+      <div id="tab-content-api" class="tab-content">
+        <div class="content-card">
+          <div class="card-title-row">
+            <h3>Live Cloud API Response</h3>
+            <button id="btn-copy-raw-json" class="btn btn-small btn-secondary">Copy JSON</button>
+          </div>
+          <p class="card-sub">Exact response payload from Alight Creative's Google Cloud Functions backend.</p>
+          <div class="code-box-wrapper">
+            <pre><code id="raw-json-display">{}</code></pre>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Sticky Bottom Quick Bar on Mobile -->
+  <aside id="sticky-bottom-bar" class="sticky-bar" style="display:none;">
+    <div class="sticky-inner">
+      <div class="sticky-info">
+        <strong id="sticky-title" class="sticky-project-title">Title</strong>
+        <span id="sticky-size" class="sticky-sub">0 MB</span>
+      </div>
+      <div class="sticky-buttons">
+        <button id="btn-sticky-copy-zip" class="btn btn-secondary btn-small" title="Copy direct download link for project ZIP">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          <span>Copy Link</span>
+        </button>
+        <a id="btn-sticky-download" href="#" class="btn btn-primary btn-small" download>
+          <span>⬇ Download ZIP</span>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <footer class="app-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand-capsule">
+        <span class="brand-pulse-dot"></span>
+        <span class="brand-prefix">Powered by</span>
+        <strong class="brand-name">CMAISNAM</strong>
+      </div>
+      <p class="footer-note">Independent Alight Motion Presets & Asset Inspector</p>
+    </div>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-box">Copied to clipboard!</div>
+
+  <!-- Full-Screen Image Lightbox Modal -->
+  <div id="image-modal" class="modal-backdrop" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span id="modal-img-title" class="modal-title">Image Preview</span>
+        <button id="modal-close-btn" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <img id="modal-img" src="" alt="Full Preview" />
+      </div>
+      <div class="modal-footer">
+        <a id="modal-img-download" href="#" class="btn btn-primary" download>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Download Image</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

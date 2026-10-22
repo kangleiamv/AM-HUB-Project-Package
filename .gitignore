@@ -1,0 +1,28 @@
+# OS & Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+.idea/
+.vscode/
+*.iml
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+
+# Android Build Artifacts
+.gradle/
+build/
+android-app/build/
+android-app/.gradle/
+android-app/local.properties
+android-app/*.idsig
+android-app/debug.keystore
+
+# Keep the production signed APK
+!android-app/AlightMotionHub.apk
+!public/AlightMotionHub.apk

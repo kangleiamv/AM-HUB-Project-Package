@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Alight Motion Hub</string>
+    <string name="brand_sub">Cloud Package &amp; Asset Downloader</string>
+    <string name="powered_by">Powered by CMAISNAM</string>
+    <string name="search_hint">Paste Alight Motion share link...</string>
+    <string name="inspect_btn">Inspect</string>
+    <string name="paste_btn">Paste</string>
+    <string name="recent_label">Recent:</string>
+    <string name="preview_tab">🎬 Preview</string>
+    <string name="media_tab">📁 Media</string>
+    <string name="xml_tab">📝 XML</string>
+    <string name="details_tab">📦 Details</string>
+    <string name="download_zip">Download .ZIP</string>
+    <string name="copy_zip">Copy Link</string>
+    <string name="open_am">Open in App</string>
+</resources>
